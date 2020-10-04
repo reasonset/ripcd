@@ -2,6 +2,16 @@
 
 Rip CD with ripit and save id image with cdrdao. Without freedb.org.
 
+# Require
+
+* Zsh
+* Ruby
+* ffmpeg with libfdk_aac
+* libfdk_aac
+* ripit
+* cdrdao
+* flac
+
 # Usage
 
 ```
@@ -23,3 +33,21 @@ Default is `$(xdg-user-dir MUSIC)/rip`.
 ```
 walkman_aac.zsh source_dir dest_dir
 ```
+
+Convert source files to m4a with libfdk_aac, copy and fix filenames in m3u, and copy cover.jpg and replicate $albumname.jpg.
+
+## walkman_aac.rb
+
+```
+walkman_aac.rb source_dir dest_dir
+```
+
+Convert source files to m4a with libfdk_aac, copy and fix filenames in m3u, and copy cover.jpg and replicate $albumname.jpg, Ruby version.
+
+## walkman_setcovername.zsh
+
+```
+walkman_aac.rb walkman_dir
+```
+
+replicate cover.jpg to $albumname.jpg.
