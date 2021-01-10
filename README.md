@@ -18,13 +18,16 @@ Rip CD with ripit and save id image with cdrdao. Without freedb.org.
 ripcd.zsh
 ```
 
-# Environment variables
+# Config file
 
-`RIPCD_OUTDIR` is an output directory for flac audio files.
-Get with `xdg-user-dir MUSIC` by default.
+`${XDG_CONFIG_HOME:-$HOME/.config}/reasonset/ripcd.zsh` is a config file.
 
-`RIPCD_IMGDIR` is an output directory for cd image.
-Default is `$(xdg-user-dir MUSIC)/rip`.
+Define paramaters thus:
+
+|Paramater|detail|
+|-------|--------------------------|
+|`RIPCD_OUTDIR`|Output directory for flac audio files. Get with `xdg-user-dir MUSIC` by default.|
+|`RIPCD_IMGDIR`|Output directory for cd image. Default is `$(xdg-user-dir MUSIC)/rip`.|
 
 # Utils
 
