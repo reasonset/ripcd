@@ -62,3 +62,4 @@ fi
 [[ -e "$RIPCD_IMGDIR/${album:h}" ]] || mkdir -p "$RIPCD_IMGDIR/${album:h}"
 cdrdao read-cd --read-raw --datafile "$RIPCD_IMGDIR/${album}.bin" --driver generic-mmc-raw "$RIPCD_IMGDIR/${album}.toc" && eject
 
+rm /tmp/ripcd.$$.*
