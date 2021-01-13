@@ -28,7 +28,7 @@ album_list=(${(f)"$(sort /tmp/ripcd.$$.current /tmp/ripcd.$$.next | uniq -u)"})
 
 if (( ${#album_list} == 1 ))
 then
-  $album="${album_list[1]}"
+  album="${album_list[1]}"
 else
 
   select album in $album_list "Manual Input"
