@@ -19,35 +19,35 @@ fixm3u() {
   )
 }
 
-fdkaac() {
-  print "Convert AAC with libfdk_aac..."
+convert_fdkaac() {
+  print "Convert AAC with fdkaac..."
   (
     cd $SOURCE_DIR
-    ruby -rfileutils <<EOF
-    sources = []
-    Dir.glob("*/*").each {|artalbm|
-      oartalbm = artalbm.split('/').map {|x| x.tr('!?\"\\<>*|:', '_') }.join("/")
-      if File.exist?(%Q%#{ENV['DEST_DIR']}/#{oartalbm}%)
-        if File.exist?(%Q%#{artalbm}/cover.jpg%) && ! File.exist?("#{ENV['DEST_DIR']}/#{oartalbm}/cover.jpg")
-          FileUtils.cp(%Q%#{artalbm}/cover.jpg%, %Q%#{ENV['DEST_DIR']}/#{oartalbm}/%)
-        end
-        STDERR.puts "#{artalbm} is already exist. Skipping..."
-        next
-      else
-        FileUtils.mkdir_p(%Q%#{ENV['DEST_DIR']}/#{oartalbm}%)
-        if File.exist? %Q%#{artalbm}/cover.jpg%
-          FileUtils.cp(%Q%#{artalbm}/cover.jpg%, %Q%#{ENV['DEST_DIR']}/#{oartalbm}/%)
-        end
-      end
-      songfiles = Dir.entries(artalbm).select {|i| File.extname(i) == ".flac" }
-      songfiles.sort.each do |songfile|
-        params = { source: "#{artalbm}/#{songfile}" }
-        params[:dest] = "#{ENV['DEST_DIR']}/#{oartalbm}/#{songfile.tr('!?\"\\<>*|:', '_').sub(/.[a-zA-Z0-9]+$/, '.m4a') }"
-        sources.push params
-      end
-    }
-    sources.each { |elm| system('ffmpeg', '-nostdin', '-i', elm[:source], '-c:a', 'libfdk_aac', '-b:a', ENV['AAC_BITRATE'], '-cutoff', '18000', elm[:dest] ) }
-EOF
+    for artalbm in */*
+    do
+      oartalbm=$(tr -s '!?\"\\<>*|:' '_' <<< "$artalbm")
+      if [[ -e $DEST_DIR/$oartalbm ]]
+      then
+        if [[ -e "$DEST_DIR/$oartalbm/cover.jpg" && ! -e "$DEST_DIR/$oartalbm/cover.jpg" ]]
+        then
+          print "Album $oartalbm copy cover only." >&2
+          cp "$DEST_DIR/$oartalbm/cover.jpg" "$DEST_DIR/$oartalbm/cover.jpg"
+          continue
+        else
+          print "Album $oartalbm is already exist. skipping..." >&2
+          continue
+        fi
+      fi
+      mkdir -pv "$DEST_DIR/$oartalbm"
+      if [[ -e "$DEST_DIR/$oartalbm/cover.jpg" && ! -e "$DEST_DIR/$oartalbm/cover.jpg" ]]
+      then
+        cp "$DEST_DIR/$oartalbm/cover.jpg" "$DEST_DIR/$oartalbm/cover.jpg"
+      fi
+      for song in $artalbm/*.(wav|flac|aiff)
+      do
+        ffmpeg -nostdin -i $song -vn -f wav -c:a pcm_s16le - | fdkaac -b ${AAC_BITRATE} -w 19000 -o $DEST_DIR/$oartalbm/${${song:t}:r} -
+      done
+    done
   )
 }
 
@@ -85,6 +85,6 @@ fi
 print source: $SOURCE_DIR
 print dest: $DEST_DIR
 
-fdkaac
+convert_fdkaac
 fixm3u
 cover4walkman

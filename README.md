@@ -5,12 +5,11 @@ Rip CD with ripit and save id image with cdrdao. Without freedb.org.
 # Require
 
 * Zsh
-* Ruby
-* ffmpeg with libfdk_aac
-* libfdk_aac
+* ffmpeg(1)
+* fdkaac(1)
 * ripit
 * cdrdao
-* flac
+* flac(1)
 
 # Usage
 
