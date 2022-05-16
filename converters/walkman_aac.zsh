@@ -23,15 +23,15 @@ convert_fdkaac() {
   print "Convert AAC with fdkaac..."
   (
     cd $SOURCE_DIR
-    for artalbm in */*
+    for artalbm in */*(#q/)
     do
       oartalbm=$(tr -s '!?\"\\<>*|:' '_' <<< "$artalbm")
       if [[ -e $DEST_DIR/$oartalbm ]]
       then
-        if [[ -e "$DEST_DIR/$oartalbm/cover.jpg" && ! -e "$DEST_DIR/$oartalbm/cover.jpg" ]]
+        if [[ -e "$artalbm/cover.jpg" && ! -e "$DEST_DIR/$oartalbm/cover.jpg" ]]
         then
           print "Album $oartalbm copy cover only." >&2
-          cp "$DEST_DIR/$oartalbm/cover.jpg" "$DEST_DIR/$oartalbm/cover.jpg"
+          cp "$oartalbm/cover.jpg" "$DEST_DIR/$oartalbm/cover.jpg"
           continue
         else
           print "Album $oartalbm is already exist. skipping..." >&2
@@ -39,16 +39,38 @@ convert_fdkaac() {
         fi
       fi
       mkdir -pv "$DEST_DIR/$oartalbm"
-      if [[ -e "$DEST_DIR/$oartalbm/cover.jpg" && ! -e "$DEST_DIR/$oartalbm/cover.jpg" ]]
+      if [[ -e "$artalbm/cover.jpg" && ! -e "$DEST_DIR/$oartalbm/cover.jpg" ]]
       then
-        cp "$DEST_DIR/$oartalbm/cover.jpg" "$DEST_DIR/$oartalbm/cover.jpg"
+        cp -v "$artalbm/cover.jpg" "$DEST_DIR/$oartalbm/cover.jpg"
       fi
       for song in $artalbm/*.(wav|flac|aiff)
       do
-        ffmpeg -nostdin -i $song -vn -f wav -c:a pcm_s16le - | fdkaac -b ${AAC_BITRATE} -w 19000 -o $DEST_DIR/$oartalbm/${${song:t}:r} -
+        ffmpeg -nostdin -i "$song" -vn -f wav -c:a pcm_s16le - | fdkaac -b ${AAC_BITRATE} -w 19000 -o "$DEST_DIR/$oartalbm/${${song:t}:r}.m4a" -
+        set_id3tag "$song" "$DEST_DIR/$oartalbm/${${song:t}:r}"
       done
     done
   )
+}
+
+set_id3tag() {
+  print "Copy ID3 Tag......"
+  kid3-cli -c 'set title PRE' -c 'save' "$2".m4a
+  ruby -r"taglib" - "$1" "$2".m4a <<EOF
+TagLib::FileRef.open(ARGV[0]) do |flac|
+  TagLib::FileRef.open(ARGV[1]) do |m4a|
+    tag = flac.tag
+    m4t = m4a.tag
+    m4t.artist = tag.artist
+    m4t.album = tag.album
+    m4t.title = tag.title
+    m4t.genre = tag.genre
+    m4t.comment = tag.comment
+    m4t.track = tag.track
+    m4t.year = tag.year
+    m4a.save
+  end
+end
+EOF
 }
 
 cover4walkman() {

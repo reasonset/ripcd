@@ -10,6 +10,9 @@ Rip CD with ripit and save id image with cdrdao. Without freedb.org.
 * ripit
 * cdrdao
 * flac(1)
+* Ruby
+* taglib-ruby (Ruby Library)
+* kid3-cli
 
 # Usage
 
@@ -38,18 +41,7 @@ walkman_aac.zsh source_dir dest_dir
 
 Convert source files to m4a with libfdk_aac, copy and fix filenames in m3u, and copy cover.jpg and replicate $albumname.jpg.
 
-## walkman_aac.rb
+# Known Issue
 
-```
-walkman_aac.rb source_dir dest_dir
-```
-
-Convert source files to m4a with libfdk_aac, copy and fix filenames in m3u, and copy cover.jpg and replicate $albumname.jpg, Ruby version.
-
-## walkman_setcovername.zsh
-
-```
-walkman_aac.rb walkman_dir
-```
-
-replicate cover.jpg to $albumname.jpg.
+`walkman_aac.zsh` copies ID3 tags with very bogus way.
+Please tell me good way.
