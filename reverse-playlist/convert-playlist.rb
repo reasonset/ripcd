@@ -40,13 +40,13 @@ File.foreach(playlist) do |line|
     loop do
       artist_canditate.each_with_index do |i, index|
         STDERR.printf "%d. %s (%.3f)\n", index, i[:path], i[:score]
-        STDERR.puts "m. Manual Input"
       end
+      STDERR.puts "m. Manual Input"
       STDERR.print "?> "
       num = gets
       if num =~ /^[Mm]$/
         STDERR.print "Artist?> "
-        artist = gets.chomp
+        artist = gets.chomp.delsym
         break if db[artist]
       else
         next unless num =~ /^\d+$/
