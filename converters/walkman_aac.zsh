@@ -6,6 +6,9 @@ export AAC_BITRATE=320k
 typeset -gx SOURCE_DIR=$1
 typeset -gx DEST_DIR=$2
 
+typeset -A opts
+zparseopts -D -A opts -- -command-fdkaac c
+
 fixm3u() {
   (
     print "Fixing and copy m3u"
@@ -15,6 +18,47 @@ fixm3u() {
       [[ -e $DEST_DIR/$i ]] && continue
       print $DEST_DIR/$i
       perl -p -e 'if (/^[^#]/ && ! /^$/) { tr/!?"\\<>*|:/_________/; s/(\.[a-zA-Z0-9]+)? *$/.m4a/ }' $i >| $DEST_DIR/$i
+    done
+  )
+}
+
+convert_aac() {
+  if [[ -n "${opts[(i)--command-fdkaac]}" || -n "${opts[(i)-c]}" ]]
+  then
+    convert_fdkaac
+  else
+    convert_ffmpeg
+  fi
+}
+
+convert_ffmpeg() {
+  print "Convert AAC with ffmpeg libfdk-aac..."
+  (
+    cd $SOURCE_DIR
+    for artalbm in */*(#q/)
+    do
+      oartalbm=$(tr -s '!?\"\\<>*|:' '_' <<< "$artalbm")
+      if [[ -e $DEST_DIR/$oartalbm ]]
+      then
+        if [[ -e "$artalbm/cover.jpg" && ! -e "$DEST_DIR/$oartalbm/cover.jpg" ]]
+        then
+          print "Album $oartalbm copy cover only." >&2
+          cp "$oartalbm/cover.jpg" "$DEST_DIR/$oartalbm/cover.jpg"
+          continue
+        else
+          print "Album $oartalbm is already exist. skipping..." >&2
+          continue
+        fi
+      fi
+      mkdir -pv "$DEST_DIR/$oartalbm"
+      if [[ -e "$artalbm/cover.jpg" && ! -e "$DEST_DIR/$oartalbm/cover.jpg" ]]
+      then
+        cp -v "$artalbm/cover.jpg" "$DEST_DIR/$oartalbm/cover.jpg"
+      fi
+      for song in $artalbm/*.(wav|flac|aiff)
+      do
+        ffmpeg -nostdin -i "$song" -vn -c:a libfdk_aac -b:a ${AAC_BITRATE} -cutoff 20k "$DEST_DIR/$oartalbm/${${song:t}:r}.m4a"
+      done
     done
   )
 }
@@ -107,6 +151,6 @@ fi
 print source: $SOURCE_DIR
 print dest: $DEST_DIR
 
-convert_fdkaac
+convert_aac
 fixm3u
 cover4walkman
