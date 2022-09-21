@@ -40,12 +40,19 @@ File.foreach(playlist) do |line|
     loop do
       artist_canditate.each_with_index do |i, index|
         STDERR.printf "%d. %s (%.3f)\n", index, i[:path], i[:score]
+        STDERR.puts "m. Manual Input"
       end
       STDERR.print "?> "
       num = gets
-      next unless num =~ /^\d+$/
-      artist = artist_canditate[num.to_i]&.[](:path)
-      break if artist
+      if num =~ /^[Mm]$/
+        STDERR.print "Artist?> "
+        artist = gets.chomp
+        break if db[artist]
+      else
+        next unless num =~ /^\d+$/
+        artist = artist_canditate[num.to_i]&.[](:path)
+        break if artist
+      end
     end
     pathes = db[artist]
   end
@@ -53,7 +60,7 @@ File.foreach(playlist) do |line|
   path = pathes[sqpath]
   
   unless path
-    path_canditate = db[artist].map {|k, v| {path: v, score: String::Similarity.cosine(k, sqpath)} }.sort_by {|i| i[:score]}.reverse
+    path_canditate = db[artist].map {|k, v| {path: v, score: String::Similarity.cosine(k, sqpath)} }.sort_by {|i| i[:score]}.reverse[0, 30]
     STDERR.puts "path #{sqpath} not found."
     loop do
       path_canditate.each_with_index do |i, index|
