@@ -6,8 +6,8 @@ require 'string/similarity'
 
 stored_lines = []
 
-CONFIG = (YAML.load File.read "#{ENV["XDG_CONFIG_DIR"] || "#{ENV["HOME"]}/.config"}/reasonset/reverse-playlist/config.yaml" rescue {})
-DB_PATH = "#{ENV["XDG_DATA_DIR"] || "#{ENV["HOME"]}/.local/share"}/reasonset/reverse-playlist/musicdb.json"
+CONFIG = (YAML.load File.read "#{ENV["XDG_CONFIG_DIR"] || "#{ENV["HOME"]}/.config"}/reasonset/ripcd/reverse-playlist.yaml" rescue {})
+DB_PATH = "#{ENV["XDG_DATA_DIR"] || "#{ENV["HOME"]}/.local/share"}/reasonset/ripcd/musicdb.json"
 DB = Oj.load File.read DB_PATH
 
 playlist = ARGV.shift
@@ -16,7 +16,7 @@ albumless = CONFIG["albumless_roots"] || []
 
 class String
   def delsym
-    self.downcase.delete("\x00-\x2F\x3A-\x40\x5B-\x60\x7B-\x7F 　")
+    self.downcase.unicode_normalize(:nfkc).delete("\x00-\x2F\x3A-\x40\x5B-\x60\x7B-\x7F 　")
   end
 end
 
