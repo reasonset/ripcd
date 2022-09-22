@@ -22,7 +22,7 @@ ripcd.zsh
 
 # Config file
 
-`${XDG_CONFIG_HOME:-$HOME/.config}/reasonset/ripcd.zsh` is a config file.
+`${XDG_CONFIG_HOME:-$HOME/.config}/reasonset/ripcd/ripcd.zsh` is a config file.
 
 Define paramaters thus:
 

@@ -2,9 +2,17 @@
 setopt EXTENDED_GLOB
 setopt BARE_GLOB_QUAL
 
+typeset -A opts
+zparseopts -D -A opts -- -skip-dao -D
+
 if [[ ${XDG_CONFIG_DIR:-$HOME/.config}/reasonset/ripcd.zsh ]]
 then
   source ${XDG_CONFIG_DIR:-$HOME/.config}/reasonset/ripcd.zsh
+fi
+
+if [[ ${XDG_CONFIG_DIR:-$HOME/.config}/reasonset/ripcd/ripcd.zsh ]]
+then
+  source ${XDG_CONFIG_DIR:-$HOME/.config}/reasonset/ripcd/ripcd.zsh
 fi
 
 if [[ -z $RIPCD_OUTDIR ]]
@@ -59,7 +67,12 @@ then
   typeset -g RIPCD_IMGDIR=$(xdg-user-dir MUSIC)/rip
 fi
 
-[[ -e "$RIPCD_IMGDIR/${album:h}" ]] || mkdir -p "$RIPCD_IMGDIR/${album:h}"
-cdrdao read-cd --read-raw --datafile "$RIPCD_IMGDIR/${album}.bin" --driver generic-mmc-raw "$RIPCD_IMGDIR/${album}.toc" && eject
+if [[ -n "${opts[(i)--skip-dao]}" || -n "${opts[(i)-D]}" ]]
+then
+  :
+else
+  [[ -e "$RIPCD_IMGDIR/${album:h}" ]] || mkdir -p "$RIPCD_IMGDIR/${album:h}"
+  cdrdao read-cd --read-raw --datafile "$RIPCD_IMGDIR/${album}.bin" --driver generic-mmc-raw "$RIPCD_IMGDIR/${album}.toc" && eject
+fi
 
 rm /tmp/ripcd.$$.*
