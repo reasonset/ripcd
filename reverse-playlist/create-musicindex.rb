@@ -15,6 +15,7 @@ CONFIG = (YAML.load File.read "#{ENV["XDG_CONFIG_DIR"] || "#{ENV["HOME"]}/.confi
 
 DB_PATH = "#{ENV["XDG_DATA_DIR"] || "#{ENV["HOME"]}/.local/share"}/reasonset/ripcd/musicdb.json"
 
+flatroot = CONFIG["flat_roots"] || []
 albumless = CONFIG["albumless_roots"] || []
 
 class String
@@ -28,7 +29,14 @@ Find.find(*Dir.children(".").select {|i| File.directory? i}.map {|i| i + "/"}) d
   next unless AUDIO_EXTS.include? ext
   elms = fpath.split("/")
   root = elms[0]
-  artist = albumless.include?(elms[0]) ? elms[-2].delsym : elms[-3].delsym
+  artist = case 
+  when flatroot
+    elms[0].delsym
+  when albumless.include?(elms[0]) || elms.length == 2
+    elms[-2].delsym
+  else 
+    elms[-3].delsym
+  end
   sq = fpath.sub(/\.[^\/]+$/, "").delsym
   db[root][artist][sq] = fpath
   STDERR.printf("%s: %s => %s\n", artist, sq, fpath)

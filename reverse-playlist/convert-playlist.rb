@@ -12,6 +12,7 @@ DB = Oj.load File.read DB_PATH
 
 playlist = ARGV.shift
 
+flatroot = CONFIG["flat_roots"] || []
 albumless = CONFIG["albumless_roots"] || []
 
 class String
@@ -30,8 +31,16 @@ File.foreach(playlist) do |line|
   elms = line.chomp.split("/")
   root = elms[0]
   sqpath = line.chomp.sub(/\.[^\/]+$/, "").delsym
-  artist = albumless.include?(elms[0]) ? elms[-2].delsym : elms[-3].delsym
+  artist = case 
+  when flatroot
+    elms[0].delsym
+  when albumless.include?(elms[0]) || elms.length == 2
+    elms[-2].delsym
+  else 
+    elms[-3].delsym
+  end
   db = DB[root]
+  abort "Root #{root} is not exist." unless db
   pathes = db[artist]
 
   unless pathes

@@ -18,13 +18,18 @@ end
 kakasi_command = %w:kakasi -Ja -Ha -Ka -s -i utf-8 -o utf-8:
 kakasi_command.push CONFIG["kakasi_dic"] if CONFIG["kakasi_dic"]
 
-toc_lines << "CD_DA"
-toc_lines << "CD_TEXT {"
-toc_lines << "  LANGUAGE_MAP {"
-toc_lines << "    0 : EN"
-toc_lines << "  }"
-toc_lines << "}"
-toc_lines << ""
+toc_lines << %!CD_DA!
+toc_lines << %!CD_TEXT {!
+toc_lines << %!  LANGUAGE_MAP {!
+toc_lines << %!    0 : EN!
+toc_lines << %!  }!
+toc_lines << %!!
+toc_lines << %!  LANGUAGE 0 {!
+toc_lines << %!    TITLE "#{File.basename((ARGV[0] || ""), ".*")}"!
+toc_lines << %!    PERFORMER "Various Artist"!
+toc_lines << %!  }!
+toc_lines << %!}!
+toc_lines << %!!
 
 ARGF.each do |line|
   next if line =~ /^#/
@@ -60,8 +65,8 @@ ARGF.each do |line|
   toc_lines << %:TRACK AUDIO:
   toc_lines << %:  CD_TEXT {:
   toc_lines << %:    LANGUAGE 0 {:
-  toc_lines << %:      TITLE "#{title.delete('"')}":
-  toc_lines << %:      PERFORMER "#{performer.delete('"')}":
+  toc_lines << %:      TITLE "#{title.delete('"') rescue title}":
+  toc_lines << %:      PERFORMER "#{performer.delete('"') rescue performer}":
   toc_lines << %:    }:
   toc_lines << %:  }:
   toc_lines << %:  FILE "#{outfile}" 0:
