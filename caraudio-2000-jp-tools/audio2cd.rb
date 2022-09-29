@@ -9,6 +9,7 @@ album_artist = nil
 
 op.on("-t TITLE") {|v| album_title = v }
 op.on("-a ARTIST") {|v| album_artist = v }
+op.parse!
 
 toc_lines = []
 
