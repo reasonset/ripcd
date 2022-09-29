@@ -33,7 +33,7 @@ toc_lines << %!    0 : EN!
 toc_lines << %!  }!
 toc_lines << %!!
 toc_lines << %!  LANGUAGE 0 {!
-toc_lines << %!    TITLE "#{album_title or File.filename(File.dirname((ARGV[0] || "")))}"!
+toc_lines << %!    TITLE "#{album_title or File.basename(File.dirname((ARGV[0] || "")))}"!
 toc_lines << %!    PERFORMER "#{album_title || "Various Artist"}"!
 toc_lines << %!  }!
 toc_lines << %!}!
