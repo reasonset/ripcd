@@ -35,7 +35,7 @@ toc_lines << %!  }!
 toc_lines << %!!
 toc_lines << %!  LANGUAGE 0 {!
 toc_lines << %!    TITLE "#{album_title or File.basename(File.dirname((ARGV[0] || "")))}"!
-toc_lines << %!    PERFORMER "#{album_title || "Various Artist"}"!
+toc_lines << %!    PERFORMER "#{album_artist || "Various Artist"}"!
 toc_lines << %!  }!
 toc_lines << %!}!
 toc_lines << %!!
