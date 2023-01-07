@@ -3,11 +3,11 @@ setopt EXTENDED_GLOB
 
 export AAC_BITRATE=320k
 
+typeset -A opts
+zparseopts -D -A opts -- -command-fdkaac c -flat-files f
+
 typeset -gx SOURCE_DIR=$1
 typeset -gx DEST_DIR=$2
-
-typeset -A opts
-zparseopts -D -A opts -- -command-fdkaac c
 
 fixm3u() {
   (
@@ -27,7 +27,12 @@ convert_aac() {
   then
     convert_fdkaac
   else
-    convert_ffmpeg
+    if [[ -n "${opts[(i)--flat-files]}" || -n "${opts[(i)-f]}" ]]
+    then
+      convert_ffmpeg_flat
+    else
+      convert_ffmpeg
+    fi
   fi
 }
 
@@ -55,10 +60,25 @@ convert_ffmpeg() {
       then
         cp -v "$artalbm/cover.jpg" "$DEST_DIR/$oartalbm/cover.jpg"
       fi
-      for song in $artalbm/*.(wav|flac|aiff)
+      for song in $artalbm/*.(wav|flac|aiff|mkv|mp4|webm)
       do
         ffmpeg -nostdin -i "$song" -vn -c:a libfdk_aac -b:a ${AAC_BITRATE} -cutoff 20k "$DEST_DIR/$oartalbm/${${song:t}:r}.m4a"
       done
+    done
+  )
+}
+
+convert_ffmpeg_flat() {
+  print "Convert AAC with ffmpeg libfdk-aac..."
+  (
+    cd $SOURCE_DIR
+    if [[ -e "cover.jpg" && ! -e "$DEST_DIR/cover.jpg" ]]
+    then
+      cp -v "cover.jpg" "$DEST_DIR/cover.jpg"
+    fi
+    for song in *.(wav|flac|aiff)
+    do
+      ffmpeg -nostdin -i "$song" -vn -c:a libfdk_aac -b:a ${AAC_BITRATE} -cutoff 20k "$DEST_DIR/${${song:t}:r}.m4a"
     done
   )
 }
@@ -118,6 +138,7 @@ EOF
 }
 
 cover4walkman() {
+  [[ -n "${opts[(i)--flat-files]}" || -n "${opts[(i)-f]}" ]] && return
   (
     cd $DEST_DIR
     for i in *
@@ -152,5 +173,5 @@ print source: $SOURCE_DIR
 print dest: $DEST_DIR
 
 convert_aac
-fixm3u
+#fixm3u
 cover4walkman
