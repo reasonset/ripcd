@@ -157,7 +157,11 @@ unless CONFIG["NO_NORMALIZATION"]
   puts "==============> BOOST GAIN - #{max_volume}"
 
   files.each do |i|
-    system("ffmpeg", "-i", "step#{current_step - 1}/#{i}", "-vn", "-af", ("volume=%.1fdB" % max_volume.abs), "step#{current_step}/#{i}")
+    if max_volume > -0.1
+      system("cp", "-v", "step#{current_step - 1}/#{i}", "step#{current_step}/#{i}")
+    else
+      system("ffmpeg", "-i", "step#{current_step - 1}/#{i}", "-vn", "-af", ("volume=%.1fdB" % max_volume.abs), "step#{current_step}/#{i}")
+    end
   end
 end
 
